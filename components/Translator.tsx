@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { SearchResult, Term } from '../types';
-import { searchTerms, fetchSystemTerms } from '../services/search';
+import { searchTerms, fetchSystemTerms, normalizeInput } from '../services/search';
 import { useStore } from '../store';
-import { Volume2, Star, Copy, Plus, AlertTriangle, Info, BookOpen, Search } from 'lucide-react';
+import { Volume2, Star, Copy, Plus, AlertTriangle, Info, BookOpen, Search, Sparkles } from 'lucide-react';
 import { speakText } from '../services/tts';
 import { useTranslation } from '../services/i18n';
 import { copyToClipboard } from '../services/clipboard';
@@ -108,9 +108,15 @@ const ResultCard: React.FC<{ item: SearchResult; index: number }> = ({ item, ind
   );
 };
 
-export const Translator: React.FC = () => {
+interface TranslatorProps {
+  initialQuery?: string | null;
+  onQueryConsumed?: () => void;
+}
+
+export const Translator: React.FC<TranslatorProps> = ({ initialQuery, onQueryConsumed }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [suggestion, setSuggestion] = useState<SearchResult | null>(null);
   const [systemTerms, setSystemTerms] = useState<Term[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -134,16 +140,46 @@ export const Translator: React.FC = () => {
     fetchSystemTerms().then(setSystemTerms);
   }, []);
 
+  // Handle external query updates (from selection translate)
+  useEffect(() => {
+    if (initialQuery) {
+      setQuery(initialQuery);
+      // If external query is passed, we trigger the callback to clear it
+      if (onQueryConsumed) onQueryConsumed();
+    }
+  }, [initialQuery, onQueryConsumed]);
+
   // Search Effect (Debounced)
   useEffect(() => {
     const performSearch = () => {
       if (!query) {
         setResults([]);
+        setSuggestion(null);
         return;
       }
       setIsSearching(true);
-      const res = searchTerms(query, userTerms, systemTerms, settings.searchFuzzyThreshold);
+      
+      // Normalize query logic (Trim, Full-to-Half width, etc.)
+      const normalizedQuery = normalizeInput(query);
+      
+      const res = searchTerms(normalizedQuery, userTerms, systemTerms, settings.searchFuzzyThreshold);
       setResults(res);
+
+      // Logic for "Did you mean"
+      // If we found results, but the best match is fuzzy (implying no exact match),
+      // and the fuzzy match is decent, offer it as a correction.
+      if (res.length > 0 && res[0].matchType === 'fuzzy') {
+         // Check if score is low enough to be a "good" suggestion (Fuse.js score: 0 is perfect, 1 is mismatch)
+         // Using a slightly tighter threshold than generic search for suggestion confidence
+         if (res[0].score !== undefined && res[0].score < 0.4) {
+           setSuggestion(res[0]);
+         } else {
+           setSuggestion(null);
+         }
+      } else {
+        setSuggestion(null);
+      }
+
       setIsSearching(false);
     };
 
@@ -155,7 +191,10 @@ export const Translator: React.FC = () => {
   useEffect(() => {
     if (query.length > 2 && results.length > 0) {
       const timer = setTimeout(() => {
-        addToHistory(query, results[0]);
+        // Only add to history if it's a strong match
+        if (results[0].matchType !== 'fuzzy' || (results[0].score && results[0].score < 0.1)) {
+          addToHistory(query, results[0]);
+        }
       }, 2000);
       return () => clearTimeout(timer);
     }
@@ -164,17 +203,23 @@ export const Translator: React.FC = () => {
   const handleQuickAction = () => {
     if (!query.trim()) return;
 
-    // Execute search synchronously for immediate action
     setIsSearching(true);
-    const res = searchTerms(query, userTerms, systemTerms, settings.searchFuzzyThreshold);
+    const normalizedQuery = normalizeInput(query);
+    const res = searchTerms(normalizedQuery, userTerms, systemTerms, settings.searchFuzzyThreshold);
     setResults(res);
     setIsSearching(false);
 
     // Auto-copy logic
     if (res.length > 0 && settings.autoCopy) {
-      // Copy only the English term for best match as per requirement
       copyToClipboard(res[0].english_term, t('TOAST_COPY_SUCCESS'), t('TOAST_COPY_FAIL'));
     }
+  };
+
+  const handleApplySuggestion = (term: Term) => {
+    setQuery(term.chinese_term);
+    // Immediate search trigger via effect dependency on `query`
+    // We clear suggestion immediately to prevent flicker
+    setSuggestion(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -211,7 +256,7 @@ export const Translator: React.FC = () => {
         <p className="text-slate-500">{t('HEADER_SUBTITLE', { count: systemTerms.length + userTerms.length })}</p>
       </header>
 
-      <div className="flex gap-3 mb-8">
+      <div className="flex gap-3 mb-2">
         <div className="relative flex-1">
           <input
             type="text"
@@ -235,6 +280,23 @@ export const Translator: React.FC = () => {
           <Search className="w-5 h-5" />
           <span className="hidden sm:inline">{t('BTN_TRANSLATE_ACTION')}</span>
         </button>
+      </div>
+
+      {/* Did You Mean Suggestion */}
+      <div className="h-8 mb-6 pl-2">
+        {suggestion && (
+          <div className="flex items-center gap-2 text-sm text-slate-500 animate-fade-in">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            <span>{t('DID_YOU_MEAN')}</span>
+            <button 
+              onClick={() => handleApplySuggestion(suggestion)}
+              className="font-bold text-indigo-600 hover:text-indigo-800 hover:underline decoration-2 underline-offset-2 transition-colors"
+            >
+              {suggestion.chinese_term}
+            </button>
+            <span className="text-slate-400">({suggestion.english_term})</span>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">

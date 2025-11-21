@@ -39,6 +39,7 @@ const translations = {
     HEADER_SUBTITLE: '离线搜索 {count} 个医学术语。',
     INPUT_PLACEHOLDER: '输入中文术语、英文定义或拼音...',
     NO_MATCH: '未找到 "{query}"',
+    DID_YOU_MEAN: '未找到完全匹配，是否想找：',
     BTN_ADD_TO_DICT: '添加到词典',
     BEST_MATCH: '最佳匹配',
     BTN_PRONOUNCE: '发音',
@@ -56,6 +57,9 @@ const translations = {
     AVOID: '避免使用',
     SOURCE_USER: '用户',
     SOURCE_SYSTEM: '系统',
+
+    // Selection Tooltip
+    TOOLTIP_TRANSLATE: '翻译选中文本',
 
     // Batch
     BATCH_TITLE: '批量翻译',
@@ -80,6 +84,8 @@ const translations = {
     BTN_IMPORT_JSON: '导入词典',
     IMPORT_SUCCESS: '成功导入 {count} 个新术语。',
     IMPORT_ERROR: '文件格式无效或 JSON 解析失败。',
+    IMPORT_PARSE_ERROR: 'JSON 解析失败，请检查文件格式。',
+    IMPORT_FORMAT_ERROR: '数据格式错误，应为术语数组。',
     IMPORT_NO_DATA: '文件中未找到有效术语。',
     BTN_PREV: '上一页',
     BTN_NEXT: '下一页',
@@ -128,6 +134,7 @@ const translations = {
     HEADER_SUBTITLE: 'Instant offline search across {count} medical terms.',
     INPUT_PLACEHOLDER: 'Enter Chinese term, English definition, or Pinyin...',
     NO_MATCH: 'No match found for "{query}"',
+    DID_YOU_MEAN: 'Did you mean:',
     BTN_ADD_TO_DICT: 'Add to Dictionary',
     BEST_MATCH: 'Best Match',
     BTN_PRONOUNCE: 'Pronounce',
@@ -145,6 +152,9 @@ const translations = {
     AVOID: 'Avoid',
     SOURCE_USER: 'USER',
     SOURCE_SYSTEM: 'SYSTEM',
+
+    // Selection Tooltip
+    TOOLTIP_TRANSLATE: 'Translate selection',
 
     // Batch
     BATCH_TITLE: 'Batch Translation',
@@ -169,6 +179,8 @@ const translations = {
     BTN_IMPORT_JSON: 'Import JSON',
     IMPORT_SUCCESS: 'Successfully imported {count} terms.',
     IMPORT_ERROR: 'Invalid file format or JSON parse error.',
+    IMPORT_PARSE_ERROR: 'JSON parse failed. Check file format.',
+    IMPORT_FORMAT_ERROR: 'Invalid data format. Expected an array of terms.',
     IMPORT_NO_DATA: 'No valid terms found in file.',
     BTN_PREV: 'Previous',
     BTN_NEXT: 'Next',

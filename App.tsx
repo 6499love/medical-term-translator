@@ -10,6 +10,7 @@ import { Trash2, Volume2 } from 'lucide-react';
 import { fetchSystemTerms } from './services/search';
 import { speakText } from './services/tts';
 import { useTranslation } from './services/i18n';
+import { SelectionPopup } from './components/SelectionPopup';
 
 // Simple components for History/Favorites/Settings inside App to save file count
 // In a larger app, these would be separate files.
@@ -139,10 +140,16 @@ const SettingsPage = () => {
 
 const App: React.FC = () => {
   const [activePage, setActivePage] = useState<PageRoute>('translate');
+  const [pendingQuery, setPendingQuery] = useState<string | null>(null);
+
+  const handleSelectionTranslate = (text: string) => {
+    setPendingQuery(text);
+    setActivePage('translate');
+  };
 
   const renderPage = () => {
     switch (activePage) {
-      case 'translate': return <Translator />;
+      case 'translate': return <Translator initialQuery={pendingQuery} onQueryConsumed={() => setPendingQuery(null)} />;
       case 'batch': return <BatchTranslation />;
       case 'dictionary': return <UserDictionary />;
       case 'history': return <HistoryPage />;
@@ -154,6 +161,7 @@ const App: React.FC = () => {
 
   return (
     <Layout activePage={activePage} onNavigate={setActivePage}>
+      <SelectionPopup onTranslate={handleSelectionTranslate} />
       {renderPage()}
     </Layout>
   );

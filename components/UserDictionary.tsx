@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useStore } from '../store';
 import { Trash2, Search, Book, Download, Upload, FileJson, AlertTriangle, ChevronLeft, ChevronRight, X, Info } from 'lucide-react';
@@ -82,11 +83,11 @@ export const UserDictionary: React.FC = () => {
             setMessage({ type: 'error', text: t('IMPORT_NO_DATA') });
           }
         } else {
-          setMessage({ type: 'error', text: t('IMPORT_ERROR') });
+          setMessage({ type: 'error', text: t('IMPORT_FORMAT_ERROR') });
         }
       } catch (err) {
         console.error(err);
-        setMessage({ type: 'error', text: t('IMPORT_ERROR') });
+        setMessage({ type: 'error', text: t('IMPORT_PARSE_ERROR') });
       }
       // Reset input
       if (fileInputRef.current) fileInputRef.current.value = '';

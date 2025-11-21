@@ -1,3 +1,4 @@
+
 import Fuse from 'fuse.js';
 import { Term, SearchResult } from '../types';
 
@@ -34,6 +35,32 @@ export const fetchSystemTerms = async (): Promise<Term[]> => {
 
 // Helper to remove spaces and normalize
 const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, '');
+
+/**
+ * Normalizes user input for better matching:
+ * - Trims whitespace
+ * - Converts full-width characters to half-width
+ * - Collapses multiple spaces
+ */
+export const normalizeInput = (str: string): string => {
+  return str
+    // Convert full-width alphanumeric/punctuation in range FF01-FF5E to half-width 21-7E
+    .replace(/[\uff01-\uff5e]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
+    // Convert full-width space to half-width space
+    .replace(/\u3000/g, ' ')
+    // Handle common Chinese punctuation not in the FF01 range if needed (e.g. 。 to .)
+    // However, standard policy is often to keep specific CJK punctuation for context, 
+    // but for search normalization we map standard ones:
+    .replace(/。/g, '.')
+    .replace(/，/g, ',')
+    .replace(/：/g, ':')
+    .replace(/；/g, ';')
+    .replace(/（/g, '(')
+    .replace(/）/g, ')')
+    // Trim and collapse spaces
+    .trim()
+    .replace(/\s+/g, ' ');
+};
 
 export const searchTerms = (
   query: string, 
