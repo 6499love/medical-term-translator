@@ -1,0 +1,5 @@
+{
+  "name": "MediTerm Glass",
+  "description": "A high-performance, offline-first medical term translator with glassmorphism UI. Features smart priority search, batch translation, and local dictionary management.",
+  "requestFramePermissions": []
+}
