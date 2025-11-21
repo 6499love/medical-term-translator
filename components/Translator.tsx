@@ -1,10 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { SearchResult, Term } from '../types';
 import { searchTerms, fetchSystemTerms } from '../services/search';
 import { useStore } from '../store';
-import { Volume2, Star, Copy, Plus, AlertTriangle, Info, BookOpen } from 'lucide-react';
+import { Volume2, Star, Copy, Plus, AlertTriangle, Info, BookOpen, Search } from 'lucide-react';
 import { speakText } from '../services/tts';
 import { useTranslation } from '../services/i18n';
+import { copyToClipboard } from '../services/clipboard';
 
 const ResultCard: React.FC<{ item: SearchResult; index: number }> = ({ item, index }) => {
   const { favorites, toggleFavorite } = useStore();
@@ -17,7 +19,7 @@ const ResultCard: React.FC<{ item: SearchResult; index: number }> = ({ item, ind
   };
 
   const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
+    copyToClipboard(text, t('TOAST_COPY_SUCCESS'), t('TOAST_COPY_FAIL'));
   };
 
   return (
@@ -132,7 +134,7 @@ export const Translator: React.FC = () => {
     fetchSystemTerms().then(setSystemTerms);
   }, []);
 
-  // Search Effect
+  // Search Effect (Debounced)
   useEffect(() => {
     const performSearch = () => {
       if (!query) {
@@ -158,6 +160,28 @@ export const Translator: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [query, results, addToHistory]);
+
+  const handleQuickAction = () => {
+    if (!query.trim()) return;
+
+    // Execute search synchronously for immediate action
+    setIsSearching(true);
+    const res = searchTerms(query, userTerms, systemTerms, settings.searchFuzzyThreshold);
+    setResults(res);
+    setIsSearching(false);
+
+    // Auto-copy logic
+    if (res.length > 0 && settings.autoCopy) {
+      // Copy only the English term for best match as per requirement
+      copyToClipboard(res[0].english_term, t('TOAST_COPY_SUCCESS'), t('TOAST_COPY_FAIL'));
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleQuickAction();
+    }
+  };
 
   const handleAddTerm = (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,20 +211,30 @@ export const Translator: React.FC = () => {
         <p className="text-slate-500">{t('HEADER_SUBTITLE', { count: systemTerms.length + userTerms.length })}</p>
       </header>
 
-      <div className="relative mb-8">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t('INPUT_PLACEHOLDER')}
-          className="w-full px-6 py-4 text-lg rounded-2xl bg-white/70 backdrop-blur border-2 border-transparent focus:border-indigo-400 focus:bg-white focus:shadow-xl outline-none transition-all duration-300 text-slate-800 placeholder:text-slate-400 shadow-inner"
-          autoFocus
-        />
-        {isSearching && (
-           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500"></div>
-           </div>
-        )}
+      <div className="flex gap-3 mb-8">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={t('INPUT_PLACEHOLDER')}
+            className="w-full px-6 py-4 text-lg rounded-2xl bg-white/70 backdrop-blur border-2 border-transparent focus:border-indigo-400 focus:bg-white focus:shadow-xl outline-none transition-all duration-300 text-slate-800 placeholder:text-slate-400 shadow-inner"
+            autoFocus
+          />
+          {isSearching && (
+             <div className="absolute right-4 top-1/2 -translate-y-1/2">
+               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500"></div>
+             </div>
+          )}
+        </div>
+        <button 
+          onClick={handleQuickAction}
+          className="px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-medium shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2"
+        >
+          <Search className="w-5 h-5" />
+          <span className="hidden sm:inline">{t('BTN_TRANSLATE_ACTION')}</span>
+        </button>
       </div>
 
       <div className="space-y-4">

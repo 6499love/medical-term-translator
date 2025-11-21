@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Layout } from './components/Layout';
 import { Translator } from './components/Translator';
@@ -111,6 +112,19 @@ const SettingsPage = () => {
             type="checkbox"
             checked={settings.autoPlayAudio}
             onChange={(e) => updateSettings({ autoPlayAudio: e.target.checked })}
+            className="w-5 h-5 accent-indigo-600 rounded"
+          />
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-white/50">
+          <div>
+            <h4 className="font-medium text-slate-800">{t('SET_AUTOCOPY')}</h4>
+            <p className="text-xs text-slate-500">{t('SET_AUTOCOPY_DESC')}</p>
+          </div>
+          <input 
+            type="checkbox"
+            checked={settings.autoCopy}
+            onChange={(e) => updateSettings({ autoCopy: e.target.checked })}
             className="w-5 h-5 accent-indigo-600 rounded"
           />
         </div>

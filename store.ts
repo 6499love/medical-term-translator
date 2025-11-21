@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Term, HistoryItem, AppSettings } from './types';
@@ -33,6 +34,7 @@ export const useStore = create<StoreState>()(
         autoPlayAudio: false,
         darkMode: false,
         searchFuzzyThreshold: 0.3,
+        autoCopy: false,
       },
 
       addUserTerm: (termData) => set((state) => ({

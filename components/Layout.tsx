@@ -1,13 +1,29 @@
+
 import React from 'react';
-import { Search, Book, Star, History as HistoryIcon, Settings as SettingsIcon, Layers } from 'lucide-react';
+import { Search, Book, Star, History as HistoryIcon, Settings as SettingsIcon, Layers, CheckCircle, AlertCircle } from 'lucide-react';
 import { PageRoute } from '../types';
 import { useLanguageStore, useTranslation } from '../services/i18n';
+import { useToastStore } from '../services/toast';
 
 interface LayoutProps {
   activePage: PageRoute;
   onNavigate: (page: PageRoute) => void;
   children: React.ReactNode;
 }
+
+const ToastContainer = () => {
+  const { message, type } = useToastStore();
+  if (!message) return null;
+  
+  return (
+    <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce duration-300 ${
+      type === 'success' ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+    }`}>
+      {type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+      <span className="font-medium text-sm">{message}</span>
+    </div>
+  );
+};
 
 export const Layout: React.FC<LayoutProps> = ({ activePage, onNavigate, children }) => {
   const { t } = useTranslation();
@@ -48,7 +64,9 @@ export const Layout: React.FC<LayoutProps> = ({ activePage, onNavigate, children
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-8 flex flex-col md:flex-row gap-6 max-w-7xl mx-auto">
+    <div className="min-h-screen p-4 md:p-8 flex flex-col md:flex-row gap-6 max-w-7xl mx-auto relative">
+      <ToastContainer />
+      
       {/* Mobile Nav */}
       <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-white/80 backdrop-blur-lg border border-white/40 shadow-2xl rounded-2xl p-2 z-50 flex justify-between items-center">
         {navItems.map((item) => (

@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -42,6 +43,7 @@ const translations = {
     BEST_MATCH: '最佳匹配',
     BTN_PRONOUNCE: '发音',
     BTN_COPY: '复制',
+    BTN_TRANSLATE_ACTION: '翻译',
     MODAL_TITLE: '添加新术语',
     LBL_CHINESE_TERM: '中文术语 *',
     LBL_ENGLISH_DEF: '英文定义 *',
@@ -101,7 +103,13 @@ const translations = {
     SET_FUZZY_DESC: '调整匹配的精确度 (越低越严格)',
     SET_AUTOPLAY: '自动播放音频',
     SET_AUTOPLAY_DESC: '选中时自动朗读定义',
+    SET_AUTOCOPY: '自动复制最佳翻译',
+    SET_AUTOCOPY_DESC: '按回车键或点击翻译时自动复制结果',
     SET_NOTE: '注意：所有数据均存储在浏览器的 LocalStorage 中。清除浏览器缓存将删除您的自定义词典和设置。',
+
+    // Toasts
+    TOAST_COPY_SUCCESS: '已复制到剪贴板',
+    TOAST_COPY_FAIL: '复制失败，请手动复制',
   },
   'en-US': {
     // Layout
@@ -124,6 +132,7 @@ const translations = {
     BEST_MATCH: 'Best Match',
     BTN_PRONOUNCE: 'Pronounce',
     BTN_COPY: 'Copy',
+    BTN_TRANSLATE_ACTION: 'Translate',
     MODAL_TITLE: 'Add New Term',
     LBL_CHINESE_TERM: 'Chinese Term *',
     LBL_ENGLISH_DEF: 'English Definition *',
@@ -183,7 +192,13 @@ const translations = {
     SET_FUZZY_DESC: 'Adjust how exact matches need to be (Lower = Stricter)',
     SET_AUTOPLAY: 'Auto-Play Audio',
     SET_AUTOPLAY_DESC: 'Speak definitions automatically on selection',
+    SET_AUTOCOPY: 'Auto-Copy Best Result',
+    SET_AUTOCOPY_DESC: 'Auto-copy result on Enter or Translate click',
     SET_NOTE: 'Note: All data is stored locally in your browser\'s LocalStorage. Clearing your browser cache will remove your custom dictionary and settings.',
+
+    // Toasts
+    TOAST_COPY_SUCCESS: 'Copied to clipboard',
+    TOAST_COPY_FAIL: 'Copy failed, please copy manually',
   }
 };
 

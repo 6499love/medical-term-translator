@@ -1,3 +1,4 @@
+
 export interface Term {
   id: string;
   chinese_term: string; // Was term
@@ -31,6 +32,7 @@ export interface AppSettings {
   autoPlayAudio: boolean;
   darkMode: boolean; // Simplified for this demo
   searchFuzzyThreshold: number;
+  autoCopy: boolean; // New: Auto copy best result to clipboard
 }
 
 export type PageRoute = 'translate' | 'batch' | 'dictionary' | 'history' | 'favorites' | 'settings';
