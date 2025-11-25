@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js';
 import { Term, SearchResult } from '../types';
-import systemTerms from '../system_terms.json';
+import { systemTermsData } from '../system_terms_data';
 
 
 let systemTermsCache: Term[] | null = null;
@@ -10,7 +10,7 @@ export const fetchSystemTerms = async (): Promise<Term[]> => {
   try {
     // Hydrate with source and IDs since they might be missing in JSON
     // We map the imported JSON data directly
-    systemTermsCache = (systemTerms as any[]).map((t: any, index: number) => ({
+    systemTermsCache = (systemTermsData as any[]).map((t: any, index: number) => ({
       ...t,
       id: `sys_${index}`,
       source: 'system',
