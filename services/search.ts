@@ -1,17 +1,16 @@
-
 import Fuse from 'fuse.js';
 import { Term, SearchResult } from '../types';
+import systemTerms from '../system_terms.json';
+
 
 let systemTermsCache: Term[] | null = null;
 
 export const fetchSystemTerms = async (): Promise<Term[]> => {
   if (systemTermsCache) return systemTermsCache;
   try {
-    const response = await fetch('/system_terms.json');
-    if (!response.ok) throw new Error('Failed to load dictionary');
-    const data = await response.json();
     // Hydrate with source and IDs since they might be missing in JSON
-    systemTermsCache = data.map((t: any, index: number) => ({
+    // We map the imported JSON data directly
+    systemTermsCache = (systemTerms as any[]).map((t: any, index: number) => ({
       ...t,
       id: `sys_${index}`,
       source: 'system',
@@ -28,7 +27,7 @@ export const fetchSystemTerms = async (): Promise<Term[]> => {
     }));
     return systemTermsCache || [];
   } catch (error) {
-    console.error(error);
+    console.error('Failed to load system terms:', error);
     return [];
   }
 };
